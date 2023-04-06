@@ -62,7 +62,7 @@ for i in numbers:
         try:
             generate_tts_file(tts, text, speaker_name, wavPath)
         except Exception as e:
-            print(f"Failed to generate {wavPath} with error: {e}")#
+            print(f"Failed to generate {wavPath} with error: {e}")
             failed.append(i)
         else:
             print(f"Generated {wavPath}")

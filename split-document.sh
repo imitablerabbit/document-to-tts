@@ -52,7 +52,12 @@ function end_action {
 
 # Print usage information.
 function usage {
-    echo "Usage: split-document.sh <input_file> <output_dir>"
+    echo "Usage: split-document.sh [options] input_file"
+    echo
+    echo "Options:"
+    echo "  -h, --help            Print this help message."
+    echo "  -o, --output          The output directory. Default: split"
+    echo
     exit 1
 }
 
