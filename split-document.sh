@@ -93,7 +93,7 @@ if [ -z "${input_file}" ]; then
     usage
 fi
 if [ -z "${output_dir}" ]; then
-    output_dir="split"
+    output_dir="txt-split"
 fi
 
 # Convert the document to plain text.

@@ -22,12 +22,12 @@ Example:
 ### Convert split text to audio
 
 ```bash
-python3 document-to-tts.py --text-dir <input_dir> --output-dir <output_dir>
+python3 split-txt-to-tts.py --text-dir <input_dir> --output-dir <output_dir>
 ```
 
 Example:
 
 ```bash
-python3 document-to-tts.py --text-dir text-split --output-dir audio
+python3 split-txt-to-tts.py --text-dir text-split --output-dir audio
 ```
 
