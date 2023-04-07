@@ -16,7 +16,7 @@ Split the text into paragraphs and sentences. The script will then convert each 
 Example:
 
 ```bash
-./split-document.sh --output-dir text-split -- ./my_poetry.docx
+./split-document.sh --output-dir txt-split -- ./my_poetry.docx
 ```
 
 ### Convert split text to audio
@@ -28,6 +28,6 @@ python3 split-txt-to-tts.py --text-dir <input_dir> --output-dir <output_dir>
 Example:
 
 ```bash
-python3 split-txt-to-tts.py --text-dir text-split --output-dir audio
+python3 split-txt-to-tts.py --text-dir txt-split --output-dir audio-split
 ```
 
