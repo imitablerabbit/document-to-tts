@@ -51,7 +51,7 @@ func main() {
 			if strings.HasPrefix(r.URL.Path, "/documents") {
 				documents.ServeHTTP(w, r)
 				return
-			} 
+			}
 
 			// Otherwise, serve the index page.
 			http.ServeFile(w, r, *staticFilesFlag+"/html/index.html")
@@ -62,7 +62,7 @@ func main() {
 	fmt.Printf("Listening on %s for HTTP requests ...\n", listenAddress)
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)
-	}	
+	}
 }
 
 // verifyPath will verify that the path is valid. The path must be a directory

@@ -3,6 +3,8 @@ $fontColor: #333;
 
 $paragraphActiveBackgroundColor: #dadada;
 $paragraphInactiveBackgroundColor: #efefef;
+$paragraphActiveColor: #333;
+$paragraphInactiveColor: #787878;
 
 $headingBackgroundColor: #c3c3c3;
 $headingColor: #333;
@@ -50,10 +52,11 @@ body {
     display: flex;
     flex-direction: column;
 
+    font-size: 4rem;
+
     .paragraph {
         padding: 40px;
         margin: 0px;
-        font-size: 4rem;
     
         // Vertically center the text within this element.
         display: flex;
@@ -62,12 +65,15 @@ body {
         align-items: center;
         
         &[data-paragraph="active"] {
+            background-color: $paragraphInactiveBackgroundColor;
             flex-grow: 1;
-            background-color: $paragraphActiveBackgroundColor;
+            color: $paragraphActiveColor;
         }
         &[data-paragraph="inactive"] {
+            background-color: $paragraphActiveBackgroundColor;
             flex-grow: 0;
-            background-color: $paragraphInactiveBackgroundColor;
+            color: $paragraphInactiveColor;
+            font-size: 0.8em;
         }
     }
 }
@@ -94,13 +100,37 @@ body {
         margin: 0px;
         font-size: 1rem;
         flex-grow: 1;
+        overflow-y: auto;
     }
 
     #audio-controller-paragraphs {
         flex-grow: 1;
-
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
+
+        .audio-controller-paragraph {
+            display: grid;
+            grid-template-columns: 1fr 10fr;
+            grid-template-rows: 1fr;
+            grid-template-areas: "number text" "audio audio";
+            grid-gap: 1em;
+            margin-bottom: 1em;
+
+            .audio-controller-paragraph-number {
+                grid-area: number;
+                text-align: right;
+            }
+
+            .audio-controller-paragraph-text {
+                grid-area: text;
+            }
+
+            audio {
+                grid-area: audio;
+                width: 100%;
+            }
+        }
     }
 }
 
