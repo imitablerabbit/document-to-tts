@@ -37,8 +37,13 @@
                     paragraphs in the book and add audio controllers for them.
                 -->
                 <section id="sidebar" class="card">
-                    <section id="audio-upload">
-                        <h2 class="heading">Upload Audio</h2>
+                    <!--
+                        Upload a document to convert into an audiobook. This
+                        will store the document in the server backend and load
+                        the uploaded document as the current document.
+                    -->
+                    <section id="document-upload">
+                        <h2 class="heading">Upload Document</h2>
                         <div class="content">
                             <p>Upload a document to convert into an audiobook.</p>
                             <form id="document-upload-form" method="dialog">
@@ -46,11 +51,33 @@
                                 <input type="text" name="document-name" id="document-name">
                                 <label for="document-file">Document File:</label>
                                 <input type="file" name="document" id="document-file">
-                                <button id="audio-upload-submit">Submit</button>
+                                <button id="document-upload-submit">Submit</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!--
+                        Load a document from the list of documents that have
+                        already been uploaded. A full list of documents will be
+                        populated by JS.
+                    -->
+                    <section id="document-load">
+                        <h2 class="heading">Load Document</h2>
+                        <div class="content">
+                            <p>Load a document that has already been uploaded.</p>
+                            <form id="document-load-form" method="dialog">
+                                <label for="document-load-select">Document:</label>
+                                <select name="document-load-select" id="document-load-select">
+                                    <option value="default">Select a document</option>
+                                </select>
+                                <button id="document-load-submit">Submit</button>
                             </form>
                         </div>
                     </section>
     
+                    <!--
+                        Control the audio playback of the current audiobook.
+                    -->
                     <section id="audio-controller">
                         <h2 class="heading">Audio Controller</h2>
                         <div class="content">
@@ -68,6 +95,11 @@
                         </div>
                     </section>
     
+                    <!--
+                        List all of the paragraphs in the current audiobook.
+                        Clicking on a paragraph will play the audio for that
+                        paragraph.
+                    -->
                     <section id="audio-controller-paragraphs">
                         <h2 class="heading">Paragraphs</h2>
                         <div class="content">

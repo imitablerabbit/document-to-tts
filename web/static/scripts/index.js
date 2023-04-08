@@ -1,9 +1,19 @@
 import * as alert from './alert.js'
 import { Model } from './model.js'
 
+import { MainReaderView } from './mainReaderView.js';
+import { SidebarParagraphView } from './sidebarParagraphView.js';
+import { SidebarLoadDocumentView } from './sidebarLoadDocumentView.js';
+
 window.addEventListener('load', load);
 
+// Model for the application.
 var model;
+
+// Views for the application.
+var mainReaderView;
+var sidebarParagraphView;
+var sidebarLoadDocumentView;
 
 function load() {
     console.log("Application loading...");
@@ -14,6 +24,10 @@ function init() {
     console.log("Application initializing...");
 
     model = new Model();
+
+    mainReaderView = new MainReaderView(model);
+    sidebarParagraphView = new SidebarParagraphView(model);
+    sidebarLoadDocumentView = new SidebarLoadDocumentView(model);
 
     // Initialize all modules. We need to wait for all of them to finish
     // before we can start the application.
@@ -35,4 +49,7 @@ function init() {
 function start() {
     console.log("Application started.");
     console.log(model);
+    model.openDocument(model.documents[0].id).then(() => {
+        // console.log(model.currentDocument);
+    });
 }

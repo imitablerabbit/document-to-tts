@@ -104,4 +104,15 @@ body {
     }
 }
 
+form {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 1fr;
+    grid-gap: 1em;
+    margin-bottom: 1em;
 
+    // Add button to the final column.
+    button {
+        grid-column: 2;
+    }
+}
