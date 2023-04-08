@@ -1,0 +1,107 @@
+$backgroundColor: #1d1d1d;
+$fontColor: #333;
+
+$paragraphActiveBackgroundColor: #dadada;
+$paragraphInactiveBackgroundColor: #efefef;
+
+$headingBackgroundColor: #c3c3c3;
+$headingColor: #333;
+
+$cardBackgroundColor: #efefef;
+
+// General content styles.
+body {
+    background-color: $backgroundColor;
+    color: $fontColor;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.2em;
+    margin: 0;
+    padding: 0;
+}
+
+.card {
+    background-color: $cardBackgroundColor;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#content {
+    $contentMargin: 30px;
+
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "main sidebar";
+    grid-gap: 1em;
+
+    // Center the content.
+    margin: $contentMargin auto;
+    width: 90%;
+
+    // Set the height of the main container to the height of the viewport.
+    // account for the margin and padding.
+    height: calc(100vh - #{$contentMargin * 2});
+}
+
+// Main container. Takes up the full height of the viewport. 70% width.
+#main {
+    grid-area: main;
+    
+    display: flex;
+    flex-direction: column;
+
+    .paragraph {
+        padding: 40px;
+        margin: 0px;
+        font-size: 4rem;
+    
+        // Vertically center the text within this element.
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        &[data-paragraph="active"] {
+            flex-grow: 1;
+            background-color: $paragraphActiveBackgroundColor;
+        }
+        &[data-paragraph="inactive"] {
+            flex-grow: 0;
+            background-color: $paragraphInactiveBackgroundColor;
+        }
+    }
+}
+
+// Right sidebar. 30% width.
+#sidebar {
+    grid-area: sidebar;
+
+    display: flex;
+    flex-direction: column;
+
+    .heading {
+        padding: 20px;
+        margin: 0px;
+        font-size: 2rem;
+        font-weight: normal;
+        background-color: $headingBackgroundColor;
+        color: $headingColor;
+        flex-grow: none;
+    }
+
+    .content {
+        padding: 20px;
+        margin: 0px;
+        font-size: 1rem;
+        flex-grow: 1;
+    }
+
+    #audio-controller-paragraphs {
+        flex-grow: 1;
+
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+
