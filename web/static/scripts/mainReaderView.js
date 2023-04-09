@@ -93,12 +93,18 @@ export class MainReaderView {
 
         if (previousParagraph && previousParagraph.content) {
             this.previousParagraphElement.innerHTML = previousParagraph.content
+        } else {
+            this.previousParagraphElement.innerHTML = "";
         }
         if (currentParagraph && currentParagraph.content) {
             this.currentParagraphElement.innerHTML = currentParagraph.content
+        } else {
+            this.currentParagraphElement.innerHTML = "";
         }
         if (nextParagraph && nextParagraph.content) {
             this.nextParagraphElement.innerHTML = nextParagraph.content
+        } else {
+            this.nextParagraphElement.innerHTML = "";
         }
     }
 }
