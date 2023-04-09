@@ -202,6 +202,16 @@ export class DocumentModel {
         });
     }
 
+    // Move to the previous paragraph.
+    previousParagraph() {
+        this.setCurrentParagraphIndex(this.currentParagraphIndex - 1);
+    }
+
+    // Move to the next paragraph.
+    nextParagraph() {
+        this.setCurrentParagraphIndex(this.currentParagraphIndex + 1);
+    }
+
     // Register listeners for the model. The listeners will be called
     // when the model changes.
     addEventListener(event, eventHandler) {

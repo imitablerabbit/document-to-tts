@@ -4,6 +4,7 @@ import { Model } from './model.js'
 import { MainReaderView } from './mainReaderView.js';
 import { SidebarParagraphView } from './sidebarParagraphView.js';
 import { SidebarLoadDocumentView } from './sidebarLoadDocumentView.js';
+import { AudioController } from './audioController.js';
 
 window.addEventListener('load', load);
 
@@ -14,6 +15,7 @@ var model;
 var mainReaderView;
 var sidebarParagraphView;
 var sidebarLoadDocumentView;
+var audioController;
 
 function load() {
     console.log("Application loading...");
@@ -28,6 +30,7 @@ function init() {
     mainReaderView = new MainReaderView(model);
     sidebarParagraphView = new SidebarParagraphView(model);
     sidebarLoadDocumentView = new SidebarLoadDocumentView(model);
+    audioController = new AudioController(model);
 
     // Initialize all modules. We need to wait for all of them to finish
     // before we can start the application.
