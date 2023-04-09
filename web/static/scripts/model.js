@@ -115,22 +115,21 @@ export class DocumentModel {
     constructor() {
         // Document information passed in by the user for uploading or
         // back from the server when loading existing documents.
-        this.documentID = null;
-        this.documentName = null;
+        this.id = null;
+        this.name = null;
+        this.paragraphs = null;
 
         // Has the document model been loaded from the server?
         this.loaded = false;
 
         // Response from the server containing the paragraph information.
         this.currentParagraphIndex = 0;
-        this.paragraphs = null;
-
+        
         // Listeners for the model events.
         this.listeners = [];
 
         // Event types.
-        this.LOADED = 'loaded';
-        this.AUDIO_FILES_LOADED = 'audioFilesLoaded';
+        this.PARAGRAPH_LOADED = 'paragraphLoaded';
     }
 
     // Load the document from the server. This will return a promise
@@ -141,35 +140,43 @@ export class DocumentModel {
             request.open('GET', '/documents/' + documentID);
             request.responseType = 'json';
             request.send();
-            request.onload = () => {
-                this.documentID = request.response.id;
-                this.documentName = request.response.name;
+            request.onload = async () => {
+                this.id = request.response.id;
+                this.name = request.response.name;
                 this.paragraphs = request.response.paragraphs;
-                this.loaded = true;
+                this.loaded = false;
                 resolve();
+
+                // Load the paragraphs in the document. Trigger the
+                // paragraph loaded event when each paragraph has been
+                // loaded.
+                let batch = [];
+                let batchSize = 100;
+                for (let i = 0; i < this.paragraphs.length; i++) {
+                    let paragraph = this.paragraphs[i];
+                    let paragraphModel = new ParagraphModel();
+
+                    // Create a function to load the paragraph and trigger
+                    // the paragraph loaded event.
+                    let p = paragraphModel.loadParagraph(documentID, paragraph.id).then(() => {
+                        let e = new CustomEvent(this.PARAGRAPH_LOADED, {detail: paragraphModel});
+                        this.listeners.forEach((listener) => {
+                            if (listener.event === this.PARAGRAPH_LOADED) {
+                                listener.eventHandler(e);
+                            }
+                        });
+                    });
+
+                    // Load the paragraph in batches.
+                    batch.push(p);
+                    if (batch.length === batchSize || i === this.paragraphs.length - 1) {
+                        await Promise.all(batch);
+                        batch = [];
+                    }
+                }
+                this.loaded = true;
             };
         });
-    }
-
-    // Load the audio files from the server.
-    loadExisting(documentName) {
-        return new Promise((resolve, reject) => {
-            let request = new XMLHttpRequest();
-            request.open('GET', '/documents/' + documentName + '/audio');
-            request.responseType = 'json';
-            request.send();
-            request.onload = () => {
-                this.audioFiles = request.response;
-                this.loaded = true;
-                resolve();
-            };
-        });
-    }
-
-    // Set the current audio file to be played.
-    setCurrentAudioFile(audioFile) {
-        this.currentAudioFile = audioFile;
-        this.currentAudioFileIndex = this.audioFiles.indexOf(audioFile);
     }
 
     // Register listeners for the model. The listeners will be called
@@ -185,32 +192,33 @@ export class DocumentModel {
 
 
 
-
-
-
 /*
 ParagraphModel contains the information for a single paragraph.
 */
 export class ParagraphModel {
     constructor() {
-        this.paragraphText = null;
-        this.paragraphNumber = null;
-        this.paragraphAudioFile = null;
+        this.id = null;
+        this.content = null;
+        this.link = null;
+        this.audioLink = null;
     }
-
-    // Set the paragraph text.
-    setParagraphText(paragraphText) {
-        this.paragraphText = paragraphText;
-    }
-
-    // Set the paragraph number.
-    setParagraphNumber(paragraphNumber) {
-        this.paragraphNumber = paragraphNumber;
-    }
-
-    // Set the paragraph audio file.
-    setParagraphAudioFile(paragraphAudioFile) {
-        this.paragraphAudioFile = paragraphAudioFile;
+    
+    // Load the paragraph from the server. This will return a promise
+    // that will be resolved when the paragraph has been loaded.
+    loadParagraph(documentID, paragraphID) {
+        return new Promise((resolve, reject) => {
+            let request = new XMLHttpRequest();
+            request.open('GET', '/documents/' + documentID + '/paragraphs/' + paragraphID);
+            request.responseType = 'json';
+            request.send();
+            request.onload = () => {
+                this.id = request.response.id;
+                this.content = request.response.content;
+                this.link = request.response.link;
+                this.audioLink = request.response.audioLink;
+                resolve();
+            };
+        });
     }
 }
 

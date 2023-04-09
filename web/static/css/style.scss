@@ -103,26 +103,30 @@ body {
         overflow-y: auto;
     }
 
-    #audio-controller-paragraphs {
+    #paragraphs {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
 
-        .audio-controller-paragraph {
+        .paragraph {
             display: grid;
             grid-template-columns: 1fr 10fr;
             grid-template-rows: 1fr;
             grid-template-areas: "number text" "audio audio";
-            grid-gap: 1em;
-            margin-bottom: 1em;
+            grid-gap: 10px;
 
-            .audio-controller-paragraph-number {
+            & > p {
+                margin: 0;
+                padding: 0;
+            }
+
+            .paragraph-number {
                 grid-area: number;
                 text-align: right;
             }
 
-            .audio-controller-paragraph-text {
+            .paragraph-content {
                 grid-area: text;
             }
 

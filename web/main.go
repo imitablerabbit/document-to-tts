@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"imitablerabbit/ttsweb"
 )
 
 var (
 	portFlag        = flag.Int("port", 8080, "the port number that this server should listen on")
 	staticFilesFlag = flag.String("static", "build/static", "the static file directory")
 
-	documentsDirFlag = flag.String("documents-dir", "documents", "the directory that contains the documents")
+	documentsDirFlag = flag.String("documents-dir", "documents/", "the directory that contains the documents")
 )
 
 func main() {
@@ -29,11 +31,11 @@ func main() {
 	}
 
 	// Load the documents.
-	documents, err := LoadDocuments(*documentsDirFlag)
+	documents, err := ttsweb.LoadDocuments(*documentsDirFlag)
 	if err != nil {
 		panic(err)
 	}
-	documents.documentsDir = *documentsDirFlag
+	documents.SetDocumentsDir(*documentsDirFlag)
 
 	// Create the http server.
 	server := &http.Server{

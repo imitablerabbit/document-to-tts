@@ -67,8 +67,18 @@ export class MainReaderView {
             nextParagraph = this.document.paragraphs[paragraphIndex + 1];
         }
 
-        this.previousParagraphElement.innerHTML = previousParagraph ? previousParagraph.content : '';
-        this.currentParagraphElement.innerHTML = currentParagraph ? currentParagraph.content : '';
-        this.nextParagraphElement.innerHTML = nextParagraph ? nextParagraph.content : '';
+        console.log("MainReaderView: previousParagraph", previousParagraph);
+        console.log("MainReaderView: currentParagraph", currentParagraph);
+        console.log("MainReaderView: nextParagraph", nextParagraph);
+
+        if (previousParagraph && previousParagraph.content) {
+            this.previousParagraphElement.innerHTML = previousParagraph.content
+        }
+        if (currentParagraph && currentParagraph.content) {
+            this.currentParagraphElement.innerHTML = currentParagraph.content
+        }
+        if (nextParagraph && nextParagraph.content) {
+            this.nextParagraphElement.innerHTML = nextParagraph.content
+        }
     }
 }
