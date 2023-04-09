@@ -76,6 +76,11 @@ export class SidebarParagraphView {
             if (paragraph && paragraph.content) {
                 paragraphContentElement.innerHTML = paragraph.content;
             }
+            paragraphContentElement.addEventListener('click', (e) => {
+                console.log("SidebarParagraphView: paragraph clicked", e);
+                let toIndex = parseInt(paragraph.id);
+                this.document.setCurrentParagraphIndex(toIndex);
+            });
             paragraphElement.appendChild(paragraphContentElement);
 
             this.paragraphsContainerElement.appendChild(paragraphElement);

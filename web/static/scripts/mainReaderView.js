@@ -18,14 +18,34 @@ export class MainReaderView {
 
         // Subscribe to the document model to be notified when the document has been loaded.
         this.model.addEventListener('documentOpened', (e) => {
-            console.log("MainReaderView: documentOpened event received", e);
-
             this.document = e.detail;
             this.updateView();
 
+            // Subscribe to paragraph loading events. When a paragraph has been loaded
+            // we will update the view.
+            this.model.currentDocument.addEventListener('paragraphLoaded', (e) => {
+                
+                // Only update the view if the paragraph that was loaded is one of the
+                // 3 paragraphs that we are displaying.
+                let updatedId = e.detail.id;
+                let index = this.document.currentParagraphIndex;
+                if (updatedId === this.document.paragraphs[index].id) {
+                    this.updateView();
+                }
+                if (updatedId > 0 && index > 0 &&
+                    updatedId === this.document.paragraphs[index - 1].id) {
+                    this.updateView();
+                }
+                if (updatedId < this.document.paragraphs.length &&
+                    index < this.document.paragraphs.length - 1 &&
+                    updatedId === this.document.paragraphs[index + 1].id) {
+                    this.updateView();
+                }
+            });
+
             // Subscribe to the document so we know when the paragraphs have changed.
-            this.model.currentDocument.addEventListener('paragraphsChanged', (e) => {
-                console.log("MainReaderView: paragraphsChanged event received", e);
+            this.model.currentDocument.addEventListener('paragraphChanged', (e) => {
+                console.log("MainReaderView: paragraphChanged event received", e);
                 this.updateView();
             });
         });

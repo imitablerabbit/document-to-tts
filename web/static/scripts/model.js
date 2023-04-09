@@ -130,6 +130,7 @@ export class DocumentModel {
 
         // Event types.
         this.PARAGRAPH_LOADED = 'paragraphLoaded';
+        this.PARAGRAPH_CHANGED = 'paragraphChanged';
     }
 
     // Load the document from the server. This will return a promise
@@ -159,6 +160,7 @@ export class DocumentModel {
                     // Create a function to load the paragraph and trigger
                     // the paragraph loaded event.
                     let p = paragraphModel.loadParagraph(documentID, paragraph.id).then(() => {
+                        this.paragraphs[i] = paragraphModel;
                         let e = new CustomEvent(this.PARAGRAPH_LOADED, {detail: paragraphModel});
                         this.listeners.forEach((listener) => {
                             if (listener.event === this.PARAGRAPH_LOADED) {
@@ -176,6 +178,27 @@ export class DocumentModel {
                 }
                 this.loaded = true;
             };
+        });
+    }
+
+    // Get the current paragraph.
+    getCurrentParagraphIndex() {
+        return this.currentParagraphIndex;
+    }
+
+    // Set the current paragraph index.
+    setCurrentParagraphIndex(index) {
+        // Make sure the index is valid and a number.
+        if (index < 0 || index >= this.paragraphs.length || isNaN(index)) {
+            return;
+        }
+
+        this.currentParagraphIndex = index;
+        let e = new CustomEvent(this.PARAGRAPH_CHANGED, {detail: this.index});
+        this.listeners.forEach((listener) => {
+            if (listener.event === this.PARAGRAPH_CHANGED) {
+                listener.eventHandler(e);
+            }
         });
     }
 

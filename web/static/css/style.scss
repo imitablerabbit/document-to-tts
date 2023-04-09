@@ -38,7 +38,7 @@ body {
 
     // Center the content.
     margin: $contentMargin auto;
-    width: 90%;
+    width: 95%;
 
     // Set the height of the main container to the height of the viewport.
     // account for the margin and padding.
@@ -52,7 +52,7 @@ body {
     display: flex;
     flex-direction: column;
 
-    font-size: 4rem;
+    font-size: 3rem;
 
     .paragraph {
         padding: 40px;
@@ -73,7 +73,9 @@ body {
             background-color: $paragraphActiveBackgroundColor;
             flex-grow: 0;
             color: $paragraphInactiveColor;
-            font-size: 0.8em;
+            font-size: 0.6em;
+            overflow-y: hidden;
+            text-overflow: ellipsis;
         }
     }
 }
