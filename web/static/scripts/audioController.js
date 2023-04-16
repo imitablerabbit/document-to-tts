@@ -41,6 +41,13 @@ export class AudioController {
                 this.document.nextParagraph();
             });
 
+            // Check if there was an error loading the audio file. If
+            // there was an error, try to load the next paragraph.
+            this.audioElement.addEventListener('error', (e) => {
+                alert.error("Missing audio src: " + this.audioElement.src + ". Skipping to next paragraph.");
+                this.document.nextParagraph();
+            });
+
             // Subscribe to the document so we know when the paragraphs have changed.
             this.model.currentDocument.addEventListener('paragraphChanged', (e) => {
                 this.updateView();

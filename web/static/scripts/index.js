@@ -5,17 +5,25 @@ import { MainReaderView } from './mainReaderView.js';
 import { SidebarParagraphView } from './sidebarParagraphView.js';
 import { SidebarLoadDocumentView } from './sidebarLoadDocumentView.js';
 import { AudioController } from './audioController.js';
+import { SaveDocumentPositionController } from './saveDocumentPosition.js';
+
+import { DocumentUploader } from './documentUploader.js';
 
 window.addEventListener('load', load);
 
 // Model for the application.
 var model;
 
+// Controllers for the application.
+var audioController;
+var saveDocumentPositionController;
+
 // Views for the application.
 var mainReaderView;
 var sidebarParagraphView;
 var sidebarLoadDocumentView;
-var audioController;
+
+var documentUploader;
 
 function load() {
     console.log("Application loading...");
@@ -31,6 +39,9 @@ function init() {
     sidebarParagraphView = new SidebarParagraphView(model);
     sidebarLoadDocumentView = new SidebarLoadDocumentView(model);
     audioController = new AudioController(model);
+    saveDocumentPositionController = new SaveDocumentPositionController(model, audioController);
+
+    documentUploader = new DocumentUploader();
 
     // Initialize all modules. We need to wait for all of them to finish
     // before we can start the application.
@@ -50,9 +61,13 @@ function init() {
 }
 
 function start() {
-    console.log("Application started.");
-    console.log(model);
-    model.openDocument(model.documents[0].id).then(() => {
-        // console.log(model.currentDocument);
+    model.addEventListener('documentOpened', (e) => {
+        let document = e.detail;
+        alert.alert('Document opened: ' + document.name);
+
+        model.currentDocument.addEventListener('documentLoaded', () => {
+            alert.success('Document loaded: ' + document.name);
+        });
     });
+    saveDocumentPositionController.loadLastDocument();
 }

@@ -87,24 +87,20 @@ export class MainReaderView {
             nextParagraph = this.document.paragraphs[paragraphIndex + 1];
         }
 
-        console.log("MainReaderView: previousParagraph", previousParagraph);
-        console.log("MainReaderView: currentParagraph", currentParagraph);
-        console.log("MainReaderView: nextParagraph", nextParagraph);
-
         if (previousParagraph && previousParagraph.content) {
-            this.previousParagraphElement.innerHTML = previousParagraph.content
+            this.previousParagraphElement.textContent = previousParagraph.content
         } else {
-            this.previousParagraphElement.innerHTML = "";
+            this.previousParagraphElement.textContent = "";
         }
         if (currentParagraph && currentParagraph.content) {
-            this.currentParagraphElement.innerHTML = currentParagraph.content
+            this.currentParagraphElement.textContent = currentParagraph.content
         } else {
-            this.currentParagraphElement.innerHTML = "";
+            this.currentParagraphElement.textContent = "";
         }
         if (nextParagraph && nextParagraph.content) {
-            this.nextParagraphElement.innerHTML = nextParagraph.content
+            this.nextParagraphElement.textContent = nextParagraph.content
         } else {
-            this.nextParagraphElement.innerHTML = "";
+            this.nextParagraphElement.textContent = "";
         }
     }
 }

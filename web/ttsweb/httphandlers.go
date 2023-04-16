@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -164,13 +165,23 @@ func (d DocumentsInfo) httpGetDocument(w http.ResponseWriter, r *http.Request) {
 func (d DocumentsInfo) httpParagraphsRouter(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path, "/")
 	if len(path) == 5 && path[4] != "" {
+		if strings.Contains(path[4], ",") || strings.Contains(path[4], "-") {
+			// /documents/{id}/paragraphs/{paragraph_id1}-{paragraph_id2},{paragraph_id3}
+			fmt.Println("\t\t|-httpGetParagraphBatch")
+			d.httpGetParagraphBatch(w, r)
+			return
+		}
 		// /documents/{id}/paragraphs/{paragraph_id}
+		fmt.Println("\t\t|-httpGetParagraph")
 		d.httpGetParagraph(w, r)
+		return
 	}
 
 	if len(path) == 6 && path[5] == "audio" {
 		// /documents/{id}/paragraphs/{paragraph_id}/audio
+		fmt.Println("\t\t|-httpGetParagraphAudio")
 		d.httpGetParagraphAudio(w, r)
+		return
 	}
 }
 
@@ -198,6 +209,79 @@ func (d DocumentsInfo) httpGetParagraph(w http.ResponseWriter, r *http.Request) 
 	// Write the paragraph.
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+// httpGetParagraphBatch will return the paragraphs with the specified IDs.
+// The IDs can be specified as a range (e.g. 1-5) or a list (e.g. 1,2,3,4,5).
+// A combination of both is also supported (e.g. 1-3,5,7-10).
+func (d DocumentsInfo) httpGetParagraphBatch(w http.ResponseWriter, r *http.Request) {
+	// Get the document ID and paragraph ID.
+	path := strings.Split(r.URL.Path, "/")
+	documentID := path[2]
+	paragraphIDBatchString := path[4]
+
+	// Parse the paragraph IDs.
+	paragraphIDs, err := parseParagraphIDBatch(paragraphIDBatchString)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Load the paragraph.
+	paragraphs, err := LoadParagraphBatch(d.documentsDir, documentID, paragraphIDs)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Marshal the paragraph.
+	data, err := json.Marshal(paragraphs)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Write the paragraph.
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+// ParseParagraphIDBatch will parse a batch of paragraph IDs.
+func parseParagraphIDBatch(s string) ([]string, error) {
+	// Split the string into a list of IDs.
+	ids := strings.Split(s, ",")
+
+	// Parse the IDs.
+	var paragraphIDs []string
+	for _, id := range ids {
+		// Check if the ID is a range.
+		if strings.Contains(id, "-") {
+			// Parse the range.
+			parts := strings.Split(id, "-")
+			if len(parts) != 2 {
+				return nil, fmt.Errorf("invalid range: %s", id)
+			}
+			start, err := strconv.Atoi(parts[0])
+			if err != nil {
+				return nil, fmt.Errorf("invalid range: %s", id)
+			}
+			end, err := strconv.Atoi(parts[1])
+			if err != nil {
+				return nil, fmt.Errorf("invalid range: %s", id)
+			}
+
+			// Add the IDs in the range to the list.
+			for i := start; i <= end; i++ {
+				paragraphIDs = append(paragraphIDs, strconv.Itoa(i))
+			}
+			continue
+		}
+
+		// Add the ID to the list.
+		paragraphIDs = append(paragraphIDs, id)
+	}
+
+	return paragraphIDs, nil
 }
 
 // httpGetParagraphAudio will return the audio for the specified paragraph.
@@ -254,6 +338,9 @@ func (d DocumentsInfo) httpPostDocuments(w http.ResponseWriter, r *http.Request)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Add the document to the list.
+	d.Documents = append(d.Documents, document)
 
 	// Marshal the document.
 	data, err := json.Marshal(document)

@@ -60,7 +60,7 @@ build/static/scripts/%.js: $(JS_FILES)
 	./node_modules/.bin/webpack --config webpack.config.js
 
 build/static/css/%.css: $(SCSS_FILES)
-	./node_modules/.bin/sass --style=compressed --no-source-map $< $@
+	./node_modules/.bin/sass --style=compressed --no-source-map $(SRC_STATIC)/css/style.scss > $@
 
 build/static/html/%: $(HTML_FILES)
 	cp $< $@

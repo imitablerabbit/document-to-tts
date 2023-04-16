@@ -11,6 +11,8 @@ $headingColor: #333;
 
 $cardBackgroundColor: #efefef;
 
+@import "./alert.scss";
+
 // General content styles.
 body {
     background-color: $backgroundColor;
@@ -87,6 +89,11 @@ body {
     display: flex;
     flex-direction: column;
 
+    audio[controls] {
+        margin: 0 auto;
+        width: 100%;
+    }
+
     .heading {
         padding: 20px;
         margin: 0px;
@@ -110,33 +117,51 @@ body {
         display: flex;
         flex-direction: column;
         overflow-y: auto;
+        margin: 0px;
+        padding: 0px;
 
-        .paragraph {
-            display: grid;
-            grid-template-columns: 1fr 10fr;
-            grid-template-rows: 1fr;
-            grid-template-areas: "number text" "audio audio";
-            grid-gap: 10px;
+        .content {
+            padding: 0px;
+            margin: 0px;
 
-            & > p {
-                margin: 0;
-                padding: 0;
+            .paragraph {
+                display: grid;
+                grid-template-columns: 1fr 10fr;
+                grid-template-rows: 1fr;
+                grid-template-areas: "number text";
+                grid-gap: 10px;
+                padding: 10px 0px;
+
+                &.current-paragraph {
+                    background-color: lightpink;
+                    color: $paragraphActiveColor;
+                }
+    
+                & > p {
+                    margin: 0;
+                    padding: 0;
+                }
+    
+                .paragraph-number {
+                    grid-area: number;
+                    text-align: right;
+                }
+    
+                .paragraph-content {
+                    grid-area: text;
+                    padding-right: 10px;
+    
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+    
+                audio {
+                    grid-area: audio;
+                    width: 100%;
+                }
             }
-
-            .paragraph-number {
-                grid-area: number;
-                text-align: right;
-            }
-
-            .paragraph-content {
-                grid-area: text;
-            }
-
-            audio {
-                grid-area: audio;
-                width: 100%;
-            }
-        }
+        }        
     }
 }
 

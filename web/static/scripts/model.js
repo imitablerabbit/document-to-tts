@@ -129,6 +129,7 @@ export class DocumentModel {
         this.listeners = [];
 
         // Event types.
+        this.DOCUMENT_LOADED = 'documentLoaded';
         this.PARAGRAPH_LOADED = 'paragraphLoaded';
         this.PARAGRAPH_CHANGED = 'paragraphChanged';
     }
@@ -144,39 +145,46 @@ export class DocumentModel {
             request.onload = async () => {
                 this.id = request.response.id;
                 this.name = request.response.name;
-                this.paragraphs = request.response.paragraphs;
+                this.paragraphs = request.response.paragraphs; // paragraph info
                 this.loaded = false;
                 resolve();
 
                 // Load the paragraphs in the document. Trigger the
                 // paragraph loaded event when each paragraph has been
                 // loaded.
-                let batch = [];
+                let batchPromises = [];
                 let batchSize = 100;
-                for (let i = 0; i < this.paragraphs.length; i++) {
-                    let paragraph = this.paragraphs[i];
-                    let paragraphModel = new ParagraphModel();
+                let startID = 0;
+                let endID = batchSize;
+                
+                // Loop over the paragraphs in batches of 100 and load then with
+                // the start and end IDs.
+                while (startID < this.paragraphs.length-1) {
+                    batchPromises.push(this.loadParagraphs(documentID, startID, endID));
+                    startID = endID;
 
-                    // Create a function to load the paragraph and trigger
-                    // the paragraph loaded event.
-                    let p = paragraphModel.loadParagraph(documentID, paragraph.id).then(() => {
-                        this.paragraphs[i] = paragraphModel;
-                        let e = new CustomEvent(this.PARAGRAPH_LOADED, {detail: paragraphModel});
-                        this.listeners.forEach((listener) => {
-                            if (listener.event === this.PARAGRAPH_LOADED) {
-                                listener.eventHandler(e);
-                            }
-                        });
-                    });
-
-                    // Load the paragraph in batches.
-                    batch.push(p);
-                    if (batch.length === batchSize || i === this.paragraphs.length - 1) {
-                        await Promise.all(batch);
-                        batch = [];
+                    // If the end ID is greater than the number of paragraphs
+                    // then set the end ID to the number of paragraphs.
+                    if (endID + batchSize > this.paragraphs.length-1) {
+                        endID = this.paragraphs.length-1;
+                    } else {
+                        endID += batchSize;
                     }
                 }
+
+                // Wait for all of the batches to be loaded.
+                await Promise.all(batchPromises);
                 this.loaded = true;
+
+                // Trigger the document loaded event.
+                let e = new CustomEvent(this.DOCUMENT_LOADED, {detail: this});
+                this.listeners.forEach((listener) => {
+                    Promise.resolve().then(() => {
+                        if (listener.event === this.DOCUMENT_LOADED) {
+                            listener.eventHandler(e);
+                        }
+                    });
+                });
             };
         });
     }
@@ -194,7 +202,7 @@ export class DocumentModel {
         }
 
         this.currentParagraphIndex = index;
-        let e = new CustomEvent(this.PARAGRAPH_CHANGED, {detail: this.index});
+        let e = new CustomEvent(this.PARAGRAPH_CHANGED, {detail: this.currentParagraphIndex});
         this.listeners.forEach((listener) => {
             if (listener.event === this.PARAGRAPH_CHANGED) {
                 listener.eventHandler(e);
@@ -216,6 +224,44 @@ export class DocumentModel {
     // when the model changes.
     addEventListener(event, eventHandler) {
         this.listeners.push({event: event, eventHandler: eventHandler});
+    }
+
+    // Load a batch of paragraphs from the server.
+    loadParagraphs(documentID, startID, endID) {
+        return new Promise((resolve, reject) => {
+            let url = '/documents/' + documentID + '/paragraphs/' + startID + '-' + endID;
+            console.log('Loading paragraphs: ' + url);
+
+            let request = new XMLHttpRequest();
+            request.open('GET', url);
+            request.responseType = 'json';
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send();
+            request.onload = () => {
+                let paragraphs = request.response;
+                for (let i = 0; i < paragraphs.length; i++) {
+                    let paragraph = paragraphs[i];
+                    let paragraphModel = new ParagraphModel();
+                    paragraphModel.id = paragraph.id;
+                    paragraphModel.content = paragraph.content;
+                    paragraphModel.link = paragraph.link;
+                    paragraphModel.audioLink = paragraph.audioLink;
+                    this.paragraphs[paragraph.id] = paragraphModel;
+
+                    let e = new CustomEvent(this.PARAGRAPH_LOADED, {detail: paragraphModel});
+                        this.listeners.forEach((listener) => {
+                            // Trigger the eventHandlers in a promise so that
+                            // the event handlers can be async.
+                            Promise.resolve().then(() => {
+                                if (listener.event === this.PARAGRAPH_LOADED) {
+                                    listener.eventHandler(e);
+                                }
+                            });
+                        });
+                }
+                resolve();
+            };
+        });
     }
 }
 

@@ -13,6 +13,8 @@ export class SidebarParagraphView {
 
         this.paragraphsContainerElement = document.getElementById('paragraphs-content');
 
+        this.currentParagraphElement = null;
+
         // Object to hold the paragraph elements. Each key will be the
         // paragraph ID and the value will be the paragraph element.
         this.paragraphContentCache = {};
@@ -29,12 +31,30 @@ export class SidebarParagraphView {
                 // dataset.
                 let paragraphContentElement = this.paragraphContentCache[e.detail.id];
                 if (paragraphContentElement) {
-                    paragraphContentElement.innerHTML = e.detail.content;
+                    paragraphContentElement.textContent = e.detail.content;
                 }
             });
-            
-            // Subscribe to the document so we know when the paragraphs have changed.
-            this.model.currentDocument.addEventListener('paragraphsChanged', (e) => {
+
+            // Subscribe to paragraph change events. When the current paragraph
+            // has changed we will update the view to highlight the current
+            // paragraph.
+            this.model.currentDocument.addEventListener('paragraphChanged', (e) => {
+                let index = e.detail;
+                let currentParagraphContentElement = this.paragraphContentCache[index];
+
+                let previousParagraphElement = this.currentParagraphElement;
+                this.currentParagraphElement = currentParagraphContentElement.parentElement;
+
+                if (this.currentParagraphElement) {
+                    this.currentParagraphElement.classList.add('current-paragraph');
+                    this.currentParagraphElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                    });
+                }
+                if (previousParagraphElement) {
+                    previousParagraphElement.classList.remove('current-paragraph');
+                }
             });
         });
     }
@@ -67,14 +87,14 @@ export class SidebarParagraphView {
             // Add the paragraph number.
             let paragraphNumberElement = document.createElement('p');
             paragraphNumberElement.classList.add('paragraph-number');
-            paragraphNumberElement.innerHTML = paragraph.id;
+            paragraphNumberElement.textContent = paragraph.id;
             paragraphElement.appendChild(paragraphNumberElement);
 
             // Add the paragraph content.
             let paragraphContentElement = document.createElement('p');
             paragraphContentElement.classList.add('paragraph-content');
             if (paragraph && paragraph.content) {
-                paragraphContentElement.innerHTML = paragraph.content;
+                paragraphContentElement.textContent = paragraph.content;
             }
             paragraphContentElement.addEventListener('click', (e) => {
                 console.log("SidebarParagraphView: paragraph clicked", e);

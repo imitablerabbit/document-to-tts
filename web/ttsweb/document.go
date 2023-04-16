@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"path"
 )
 
 // -----------------------------------------------------------------------------
@@ -73,8 +75,11 @@ func LoadDocument(documentsDir string, id string) (DocumentInfo, error) {
 // directory. The document will be saved to the index.json file
 // in the document directory.
 func (d DocumentInfo) Save(documentsDir string, file []byte) error {
+	// Ensure path is formatted correctly using the path package.
+	documentPath := path.Join(documentsDir, d.ID)
+
 	// Check if the document directory exists. Return an error if it does.
-	if _, err := os.Stat(documentsDir + d.ID); err == nil {
+	if _, err := os.Stat(documentPath); err == nil {
 		return err
 	}
 
@@ -94,6 +99,62 @@ func (d DocumentInfo) Save(documentsDir string, file []byte) error {
 	if err := ioutil.WriteFile(documentsDir+d.ID+"/file.data", file, 0644); err != nil {
 		return err
 	}
+
+	go func() {
+		// Split the document into paragraphs.
+		if err := d.SplitToParagraphs(documentsDir); err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("Split document into paragraphs:", d.ID)
+
+		// Synthesize the paragraphs of the document.
+		if err := d.SynthesizeParagraphs(documentsDir); err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("Synthesized paragraphs:", d.ID)
+	}()
+
+	// Return no error.
+	return nil
+}
+
+// SplitToParagraphs splits the text into paragraphs by running the text through
+// the paragraph splitter script 'split-document.sh'.
+func (d DocumentInfo) SplitToParagraphs(documentsDir string) error {
+	outputDir := path.Join(documentsDir, d.ID, "paragraphs")
+	inputFile := path.Join(documentsDir, d.ID, "file.data")
+
+	// Run the paragraph splitter script.
+	cmd := exec.Command("bash", "./split-document.sh", "--output", outputDir, "--", inputFile)
+
+	// Print the output of the script.
+	output, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(output))
+
+	// Return no error.
+	return nil
+}
+
+// SynthesizeParagraphs synthesizes the paragraphs of the document by running
+// the text through the paragraph synthesizer script 'split-txt-to-tts.py'.
+func (d DocumentInfo) SynthesizeParagraphs(documentsDir string) error {
+	paragraphsDir := path.Join(documentsDir, d.ID, "paragraphs")
+	audioDir := path.Join(documentsDir, d.ID, "audio")
+
+	// Run the paragraph synthesizer script.
+	cmd := exec.Command("python3", "./split-txt-to-tts.py", "--speaker", "p241", "--text-dir", paragraphsDir, "--out-dir", audioDir)
+
+	// Print the output of the script.
+	output, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(output))
 
 	// Return no error.
 	return nil

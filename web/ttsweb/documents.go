@@ -100,7 +100,7 @@ func (d *DocumentsInfo) CreateDocument(name string, data []byte) (DocumentInfo, 
 // generateID will generate a random ID
 func generateID() string {
 	// Create a random ID.
-	id := make([]byte, 16)
+	id := make([]byte, 8)
 	rand.Read(id)
 
 	// Return the ID.

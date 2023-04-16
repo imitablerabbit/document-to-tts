@@ -109,6 +109,27 @@ func LoadParagraphInfo(documentsDir, documentID string, paragraphID string) (Par
 // Paragraphs
 // -----------------------------------------------------------------------------
 
+type ParagraphList []Paragraph
+
+// implements sort.Interface
+func (p ParagraphList) Len() int {
+	return len(p)
+}
+func (p ParagraphList) Less(i, j int) bool {
+	intIDi, err := strconv.Atoi(p[i].ID)
+	if err != nil {
+		return false
+	}
+	intIDj, err := strconv.Atoi(p[j].ID)
+	if err != nil {
+		return false
+	}
+	return intIDi < intIDj
+}
+func (p ParagraphList) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
 // Paragraph is a paragraph of a document. This includes the text of the
 // paragraph. Everything else is in the ParagraphInfo struct.
 type Paragraph struct {
@@ -142,4 +163,26 @@ func LoadParagraph(documentsDir, documentID string, paragraphID string) (Paragra
 
 	// Return the paragraph.
 	return paragraph, nil
+}
+
+// LoadParagraphBatch will load a batch of paragraphs by a list of paragraph IDs.
+func LoadParagraphBatch(documentsDir, documentID string, paragraphIDs []string) ([]Paragraph, error) {
+	fmt.Println("Loading paragraph batch for document " + documentID)
+
+	paragraphs := []Paragraph{}
+
+	// Loop through the paragraph IDs and load the paragraphs.
+	for _, paragraphID := range paragraphIDs {
+		paragraph, err := LoadParagraph(documentsDir, documentID, paragraphID)
+		if err != nil {
+			return nil, err
+		}
+		paragraphs = append(paragraphs, paragraph)
+	}
+
+	pl := ParagraphList(paragraphs)
+	sort.Sort(pl)
+
+	// Return the paragraphs.
+	return pl, nil
 }
