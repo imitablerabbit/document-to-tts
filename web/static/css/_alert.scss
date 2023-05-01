@@ -1,0 +1,99 @@
+$navBGColor: #161616;
+$navFGColor: #ffffff;
+
+$bgColor: #2a2b2b;
+$fgColor: #ffffff;
+$successBGColor: #79ff79;
+$successFGColor: #059b05;
+$errorBGColor: #ec7272;
+$errorFGColor: #b40202;
+
+body {
+    overflow-x: hidden;
+}
+
+#alert-container {
+    position: absolute;
+    width: 40%;
+    inset: auto 20px 20px auto;
+    display: flex;
+    flex-direction: column;    
+    gap: 10px;
+}
+
+.alert {
+    border-radius: 8px;
+    background-color: $navBGColor;
+    color: $navFGColor;
+    padding: 5px 20px;
+    align-items: center;
+    position: relative;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    gap: 5px;
+
+    &.success {
+        background-color: $successBGColor;
+        color: $successFGColor;
+
+        & button.close {
+            background-color: $successBGColor;
+            border-color: $successFGColor;
+
+            &:hover {
+                background-color: $successFGColor;
+                color: $successBGColor;
+            }
+        }
+    }
+
+    &.error {
+        background-color: $errorBGColor;
+        color: $errorFGColor;
+
+        & button.close {
+            background-color: $errorBGColor;
+            border-color: $errorFGColor;
+
+            &:hover {
+                background-color: $errorFGColor;
+                color: $errorBGColor;
+            }
+        }
+    }
+
+    button {
+        background: none;
+        color: $fgColor;
+        border: solid 2px $fgColor;
+        padding: 10px;
+        box-sizing: border-box;
+        border-radius: 2px;
+    
+        &:hover {
+            cursor: pointer;
+            background: $fgColor;
+            color: $bgColor;
+        }
+    
+        &.close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 23px;
+            height: 23px;
+            border-radius: 4px;
+            background-color: $errorFGColor;
+            color: inherit;
+            border: solid 2px;
+            box-sizing: border-box;
+            padding: 0px;
+    
+            &:hover {
+                background-color: lighten($errorFGColor, 10%);
+            }
+        }
+    }
+}

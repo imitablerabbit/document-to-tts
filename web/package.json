@@ -1,0 +1,13 @@
+{
+  "name": "ttsweb",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "dependencies": {
+    "gsap": "^3.11.4",
+    "sass": "^1.59.3",
+    "webpack": "^5.76.1",
+    "webpack-cli": "^5.0.1"
+  },
+  "type": "module"
+}

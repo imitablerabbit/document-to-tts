@@ -5,7 +5,7 @@ set -e
 # ------------------------------------------------------------------------------
 
 # The input file.
-input_file=$1
+declare input_file
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -61,6 +61,25 @@ function usage {
     exit 1
 }
 
+# Cleanup pandoc output. We want to remove any backslashes that appear before
+# special characters. For example, we want to convert "\*" to "*".
+function cleanup_pandoc_output {
+    # Convert "\|" to "|".
+    sed -E -i 's/\\\|/\|/g' $1
+    # Convert "\;" to
+    sed -E -i 's/\\;/;/g' $1
+    # Convert "\:" to ":".
+    sed -E -i 's/\\:/:/g' $1
+    # Convert "\'" to "'".
+    sed -E -i "s/\\\'/\'/g" $1
+    # Convert "\"" to "\".
+    sed -E -i 's/\\"/"/g' $1
+    # Convert "\@" to "@".
+    sed -E -i 's/\\@/@/g' $1
+    # Convert "\." to ".".
+    sed -E -i 's/\\\./\./g' $1
+}
+
 # ------------------------------------------------------------------------------
 # Main
 # ------------------------------------------------------------------------------
@@ -87,6 +106,9 @@ while true; do
     esac
 done
 
+# Get the input file.
+input_file=$1
+
 # Check the input parameters.
 if [ -z "${input_file}" ]; then
     echo "Error: input_file is empty"
@@ -94,6 +116,25 @@ if [ -z "${input_file}" ]; then
 fi
 if [ -z "${output_dir}" ]; then
     output_dir="txt-split"
+fi
+
+# Check that the input file exists.
+if [ ! -f "${input_file}" ]; then
+    echo "Error: input_file does not exist"
+    usage
+fi
+
+# Check if the input file has a supported extension.
+input_file_ext="${input_file##*.}"
+if [ "${input_file_ext}" != "md"        ] && \
+   [ "${input_file_ext}" != "markdown"  ] && \
+   [ "${input_file_ext}" != "txt"       ] && \
+   [ "${input_file_ext}" != "pdf"       ] && \
+   [ "${input_file_ext}" != "docx"      ]; then
+
+    echo "Error: input_file has an unsupported extension"
+    echo "Supported extensions: md, markdown, txt, pdf, docx"
+    usage
 fi
 
 # Convert the document to plain text.
@@ -114,15 +155,21 @@ status_code=$?
 mv ${tmp_name2} ${tmp_name}
 end_action ${status_code}
 
+# Fix pandoc output.
+start_action "Fixing pandoc output..." 1
+cleanup_pandoc_output ${tmp_name}
+end_action $?
+
 # Protect blank lines.
 start_action "Protecting blank lines..." 1
-sed -i 's/^$/@@@/g' ${tmp_name}
+sed -i 's/^\s*$/@@@/g' ${tmp_name}
 end_action $?
 
 # Convert \n and \r to spaces.
-start_action "Converting newlines and carriage returns to spaces..." 1
-sed -i ':a;N;$!ba;s/\n/ /g' ${tmp_name}
-sed -i ':a;N;$!ba;s/\r/ /g' ${tmp_name}
+start_action "Converting newlines, carriage returns, and tabs to spaces..." 1
+sed -i ':a;N;$!ba;s/\n//g' ${tmp_name}
+sed -i ':a;N;$!ba;s/\r//g' ${tmp_name}
+sed -i ':a;N;$!ba;s/\t//g' ${tmp_name}
 end_action
 
 # Recover blank lines.
@@ -141,13 +188,20 @@ sed -i 's/^ *//g' ${tmp_name}
 sed -i 's/ *$//g' ${tmp_name}
 end_action
 
-# Split the document into separate files based on paragraphs.
+# Remove duplicate blank lines.
+start_action "Removing duplicate blank lines..." 1
+awk 'NF || p; {p!=NF}' ${tmp_name} > ${tmp_name}.tmp
+mv ${tmp_name}.tmp ${tmp_name}
+
+# Split the document into separate files based on new lines.
 start_action "Splitting ${tmp_name} into separate files..."
 mkdir -p ${output_dir}
-awk -v "output_dir=${output_dir}" 'BEGIN{n=0}/^$/{n++}$0!=""{print > output_dir "/" n ".txt"}' ${tmp_name}
+awk 'NF {print $0 > "'${output_dir}'/" ++i ".txt"}' ${tmp_name}
 end_action $?
 
 # Remove the temporary files.
 start_action "Removing temporary files..."
 rm ${tmp_name}
 end_action
+
+exit 0

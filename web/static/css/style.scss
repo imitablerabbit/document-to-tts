@@ -1,0 +1,179 @@
+$backgroundColor: #1d1d1d;
+$fontColor: #333;
+
+$paragraphActiveBackgroundColor: #dadada;
+$paragraphInactiveBackgroundColor: #efefef;
+$paragraphActiveColor: #333;
+$paragraphInactiveColor: #787878;
+
+$headingBackgroundColor: #c3c3c3;
+$headingColor: #333;
+
+$cardBackgroundColor: #efefef;
+
+@import "./alert.scss";
+
+// General content styles.
+body {
+    background-color: $backgroundColor;
+    color: $fontColor;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.2em;
+    margin: 0;
+    padding: 0;
+}
+
+.card {
+    background-color: $cardBackgroundColor;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#content {
+    $contentMargin: 30px;
+
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "main sidebar";
+    grid-gap: 1em;
+
+    // Center the content.
+    margin: $contentMargin auto;
+    width: 95%;
+
+    // Set the height of the main container to the height of the viewport.
+    // account for the margin and padding.
+    height: calc(100vh - #{$contentMargin * 2});
+}
+
+// Main container. Takes up the full height of the viewport. 70% width.
+#main {
+    grid-area: main;
+    
+    display: flex;
+    flex-direction: column;
+
+    font-size: 3rem;
+
+    .paragraph {
+        padding: 40px;
+        margin: 0px;
+    
+        // Vertically center the text within this element.
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        &[data-paragraph="active"] {
+            background-color: $paragraphInactiveBackgroundColor;
+            flex-grow: 1;
+            color: $paragraphActiveColor;
+        }
+        &[data-paragraph="inactive"] {
+            background-color: $paragraphActiveBackgroundColor;
+            flex-grow: 0;
+            color: $paragraphInactiveColor;
+            font-size: 0.6em;
+            overflow-y: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+// Right sidebar. 30% width.
+#sidebar {
+    grid-area: sidebar;
+
+    display: flex;
+    flex-direction: column;
+
+    audio[controls] {
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .heading {
+        padding: 20px;
+        margin: 0px;
+        font-size: 2rem;
+        font-weight: normal;
+        background-color: $headingBackgroundColor;
+        color: $headingColor;
+        flex-grow: none;
+    }
+
+    .content {
+        padding: 20px;
+        margin: 0px;
+        font-size: 1rem;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    #paragraphs {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        margin: 0px;
+        padding: 0px;
+
+        .content {
+            padding: 0px;
+            margin: 0px;
+
+            .paragraph {
+                display: grid;
+                grid-template-columns: 1fr 10fr;
+                grid-template-rows: 1fr;
+                grid-template-areas: "number text";
+                grid-gap: 10px;
+                padding: 10px 0px;
+
+                &.current-paragraph {
+                    background-color: lightpink;
+                    color: $paragraphActiveColor;
+                }
+    
+                & > p {
+                    margin: 0;
+                    padding: 0;
+                }
+    
+                .paragraph-number {
+                    grid-area: number;
+                    text-align: right;
+                }
+    
+                .paragraph-content {
+                    grid-area: text;
+                    padding-right: 10px;
+    
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+    
+                audio {
+                    grid-area: audio;
+                    width: 100%;
+                }
+            }
+        }        
+    }
+}
+
+form {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 1fr;
+    grid-gap: 1em;
+    margin-bottom: 1em;
+
+    // Add button to the final column.
+    button {
+        grid-column: 2;
+    }
+}

@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <title>TTS Web</title>
+        <link href="static/css/style.css" rel="stylesheet">
+        <link rel="icon" type="image/x-icon" href="/static/images/icon.png">
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <nav id="navbar">
+            </nav>
+
+            <!-- Main page container. -->
+            <article id="content">
+                <!-- 
+                    TTS paragraph text displayed on the left side of the page.
+                    This contains the previous paragraph, current paragraph and
+                    next paragraph content. As the audio progresses the paragraph
+                    text will also update.
+                 -->
+                 <section id="main" class="card paragraph-container">
+                    <p id="previous-paragraph" class="paragraph" data-paragraph="inactive">
+                    </p>
+                    <p id="current-paragraph" class="paragraph" data-paragraph="active">
+                        Load a document to begin.
+                    </p>
+                    <p id="next-paragraph" class="paragraph" data-paragraph="inactive">
+                        Paragraph content will be displayed here.
+                    </p>
+                </section>
+    
+                <!--
+                    Audio controller sidebar on the right side of the page. This
+                    is used to control which audiobook and paragraph is being
+                    played. If an audiobook is loaded it will list all of the
+                    paragraphs in the book and add audio controllers for them.
+                -->
+                <section id="sidebar" class="card">
+                    <!--
+                        Upload a document to convert into an audiobook. This
+                        will store the document in the server backend and load
+                        the uploaded document as the current document.
+                    -->
+                    <section id="document-upload">
+                        <h2 class="heading">Upload Document</h2>
+                        <div class="content">
+                            <form id="document-upload-form" method="dialog">
+                                <label for="document-name">Document Name:</label>
+                                <input type="text" name="document-name" id="document-name">
+                                <label for="document-file">Document File:</label>
+                                <input type="file" name="document" accept=".md,.docx,.pdf,.txt" id="document-file">
+                                <button id="document-upload-submit">Submit</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!--
+                        Load a document from the list of documents that have
+                        already been uploaded. A full list of documents will be
+                        populated by JS.
+                    -->
+                    <section id="document-load">
+                        <h2 class="heading">Load Document</h2>
+                        <div class="content">
+                            <form id="document-load-form" method="dialog">
+                                <label for="document-load-select">Document:</label>
+                                <select name="document-load-select" id="document-load-select">
+                                    <option value="default">Select a document</option>
+                                </select>
+                                <button id="document-load-submit">Submit</button>
+                            </form>
+                        </div>
+                    </section>
+    
+                    <!--
+                        Control the audio playback of the current audiobook.
+                    -->
+                    <section id="audio-controller">
+                        <h2 class="heading">Audio Controller</h2>
+                        <div class="content">
+                            <div id="audio-container">
+                                <audio id="audio-player" controls></audio>
+                            </div>
+                        </div>
+                    </section>
+    
+                    <!--
+                        List all of the paragraphs in the current audiobook.
+                        Clicking on a paragraph will play the audio for that
+                        paragraph.
+                    -->
+                    <section id="paragraphs">
+                        <h2 class="heading">Paragraphs</h2>
+                        <div class="content">
+                            <div id="paragraphs-content"></div>
+                        </div>
+                    </section>
+                </section>  
+            </article>
+
+            <dialog id="load-dialog">
+                <div id="load-dialog-content">
+                    <button id="load-layout-close" class="close">x</button>
+
+                    <form id="load-layout-file-form" method="dialog">
+                        <h2>Load From File:</h2>
+                        <p>Update the application data by loading in a JSON file.</p>
+                        <input type="file" name="load-file" id="load-layout-file-input">
+                        <button id="load-layout-submit-file">Submit File</button>
+                    </form>
+                </div>
+            </dialog>
+
+            <!-- Alerts will be added to this via alert.js -->
+            <article id="alert-container"></article>
+        </div>
+
+        <script src="static/scripts/index.min.js" defer></script>
+    </body>
+</html>
