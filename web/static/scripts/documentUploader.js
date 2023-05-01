@@ -4,7 +4,8 @@ import * as alert from './alert.js'
 DocumentUploader handles posting documents to the server.
 */
 export class DocumentUploader {
-    constructor() {
+    constructor(model) {
+        this.model = model;
 
         /*
             <form id="document-upload-form" method="dialog">
@@ -33,14 +34,12 @@ export class DocumentUploader {
     }
 
     submit() {
-        let formData = new FormData();
-        formData.append('name', this.nameInput.value);
-        formData.append('file', this.fileInput.files[0]);
-
-        let request = new XMLHttpRequest();
-        request.open('POST', '/documents');
-        request.send(formData);
-
-        alert.alert('Document uploaded successfully: ' + this.nameInput.value);
+        let name = this.nameInput.value;
+        let file = this.fileInput.files[0];
+        this.model.uploadDocument(name, file).then((d) => {
+            alert.success('Document uploaded: ' + d.name);
+        }).catch((e) => {
+            alert.error('Error uploading document: ' + e);
+        });
     }
 }

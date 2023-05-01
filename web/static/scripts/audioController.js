@@ -51,7 +51,7 @@ export class AudioController {
             });
 
             // Subscribe to the document so we know when the paragraphs have changed.
-            this.model.currentDocument.addEventListener('paragraphChanged', (e) => {
+            this.document.addEventListener('paragraphChanged', (e) => {
                 this.updateView();
             });
         });

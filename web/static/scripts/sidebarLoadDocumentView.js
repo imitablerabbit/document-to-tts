@@ -10,43 +10,54 @@ export class SidebarLoadDocumentView {
     constructor(model) {
         this.model = model;
 
-        var documentLoadSelectElement = document.getElementById('document-load-select');
-        var documentLoadButtonElement = document.getElementById('document-load-submit');
+        this.documentLoadSelectElement = document.getElementById('document-load-select');
+        this.documentLoadButtonElement = document.getElementById('document-load-submit');
 
         // Add an event listener to the document load button element so we can
         // notify the model when the user has selected a document.
-        documentLoadButtonElement.addEventListener('click', (e) => {
+        this.documentLoadButtonElement.addEventListener('click', (e) => {
             e.preventDefault();
-            var documentID = documentLoadSelectElement.value;
+            var documentID = this.documentLoadSelectElement.value;
             if (documentID) {
-                this.model.openDocument(documentID).then(() => {
-                    // console.log("LoadDocumentView: document loaded", this.model.currentDocument);
-                });
+                this.model.openDocument(documentID);
             }
         });
 
         // Subscribe to the document model to be notified when the document has been loaded.
         // The view will add the list of documents to the select.
         this.model.addEventListener('documentsLoaded', (e) => {
-            // console.log("LoadDocumentView: documentsLoaded event received", e);
 
             // Prepare the document load select element. Empty existing
             // options and add a default option.
-            documentLoadSelectElement.innerHTML = '';
+            this.documentLoadSelectElement.innerHTML = '';
             var option = document.createElement('option');
             option.value = '';
             option.innerHTML = 'Select a document';
-            documentLoadSelectElement.appendChild(option);
+            this.documentLoadSelectElement.appendChild(option);
             
             // The model has loaded the list of documents. We will now populate the
             // document load select element with the list of documents.
             var documents = e.detail;
             for (var i = 0; i < documents.length; i++) {
-                var option = document.createElement('option');
-                option.value = documents[i].id;
-                option.innerHTML = documents[i].name;
-                documentLoadSelectElement.appendChild(option);
+                let d = documents[i];
+                this.addDocumentOption(d);
             }
         });
+
+        // Subscribe to the document model to be notified when the document has been uploaded.
+        // The view will add the document to the list of documents.
+        this.model.addEventListener('documentUploaded', (e) => {
+            console.log("SidebarLoadDocumentView: documentUploaded event received", e);
+            var d = e.detail;
+            this.addDocumentOption(d);
+        });
+    }
+
+    // Add option to the document load select element.
+    addDocumentOption(d) {
+        var option = document.createElement('option');
+        option.value = d.id;
+        option.innerHTML = d.name;
+        this.documentLoadSelectElement.appendChild(option);
     }
 }

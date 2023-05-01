@@ -41,7 +41,7 @@ function init() {
     audioController = new AudioController(model);
     saveDocumentPositionController = new SaveDocumentPositionController(model, audioController);
 
-    documentUploader = new DocumentUploader();
+    documentUploader = new DocumentUploader(model);
 
     // Initialize all modules. We need to wait for all of them to finish
     // before we can start the application.
@@ -62,12 +62,12 @@ function init() {
 
 function start() {
     model.addEventListener('documentOpened', (e) => {
-        let document = e.detail;
-        alert.alert('Document opened: ' + document.name);
+        let d = e.detail;
+        alert.alert('Document opened: ' + d.name);
 
         model.currentDocument.addEventListener('documentLoaded', () => {
-            alert.success('Document loaded: ' + document.name);
+            alert.success('Document loaded: ' + d.name);
         });
     });
-    saveDocumentPositionController.loadLastDocument();
+    // saveDocumentPositionController.loadLastDocument();
 }
