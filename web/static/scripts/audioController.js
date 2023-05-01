@@ -1,3 +1,5 @@
+import * as alert from './alert.js'
+
 /*
 AudioController is a class that handles the audio playback of the
 document. It will play the audio files in the background and update

@@ -75,12 +75,14 @@ func (d DocumentsInfo) GenerateID() string {
 }
 
 // CreateDocument will create a new document with the specified name and data.
-func (d *DocumentsInfo) CreateDocument(name string, data []byte) (DocumentInfo, error) {
+func (d *DocumentsInfo) CreateDocument(name string, filename string, data []byte) (DocumentInfo, error) {
 	document := DocumentInfo{
-		ID:      d.GenerateID(),
-		Name:    name,
-		Size:    int64(len(data)),
-		Sha1sum: sha1sum(data),
+		ID:       d.GenerateID(),
+		Name:     name,
+		Filename: filename,
+		Size:     int64(len(data)),
+		Sha1sum:  sha1sum(data),
+		Status:   StatusNew,
 
 		Link: "/documents/" + name,
 	}
@@ -89,9 +91,6 @@ func (d *DocumentsInfo) CreateDocument(name string, data []byte) (DocumentInfo, 
 	if err := document.Save(d.documentsDir, data); err != nil {
 		return document, err
 	}
-
-	// Add the document to the documents.
-	d.Documents = append(d.Documents, document)
 
 	// Return the document.
 	return document, nil

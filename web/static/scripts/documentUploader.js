@@ -1,4 +1,4 @@
-import { alert } from './alert.js';
+import * as alert from './alert.js'
 
 /*
 DocumentUploader handles posting documents to the server.
@@ -41,6 +41,6 @@ export class DocumentUploader {
         request.open('POST', '/documents');
         request.send(formData);
 
-        alert.alert('Document uploaded.');
+        alert.alert('Document uploaded successfully: ' + this.nameInput.value);
     }
 }

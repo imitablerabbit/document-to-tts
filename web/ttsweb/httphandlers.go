@@ -31,7 +31,7 @@ import (
 //
 // - GET /documents/{id}/paragraphs/{paragraph_id}/audio
 //   - Returns the audio for the paragraph with the specified ID.
-func (d DocumentsInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (d *DocumentsInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		fallthrough
@@ -50,7 +50,7 @@ func (d DocumentsInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // httpDocumentsRouter is the top level router for the documents endpoints.
 // This will parse out the request and call the appropriate handler.
-func (d DocumentsInfo) httpDocumentsRouter(w http.ResponseWriter, r *http.Request) {
+func (d *DocumentsInfo) httpDocumentsRouter(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("httpDocumentsRouter")
 
 	// Check if we are uploading a document.
@@ -303,27 +303,27 @@ func (d DocumentsInfo) httpGetParagraphAudio(w http.ResponseWriter, r *http.Requ
 // sent as a multipart form. The form will contain the following fields:
 //   - name: The name of the document as it was uploaded by the user.
 //   - file: The document file.
-func (d DocumentsInfo) httpPostDocuments(w http.ResponseWriter, r *http.Request) {
+func (d *DocumentsInfo) httpPostDocuments(w http.ResponseWriter, r *http.Request) {
 	// Parse the multipart form.
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Get the name of the document.
-	name := r.FormValue("name")
-	if name == "" {
-		http.Error(w, "name is required", http.StatusBadRequest)
-		return
-	}
-
 	// Get the file.
-	file, _, err := r.FormFile("file")
+	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
+
+	// Get the name of the document. If no name is specified, use the name of the
+	// file without the extension.
+	name := r.FormValue("name")
+	if name == "" {
+		name = strings.TrimSuffix(handler.Filename, filepath.Ext(handler.Filename))
+	}
 
 	// Read the file.
 	fileData, err := ioutil.ReadAll(file)
@@ -333,7 +333,7 @@ func (d DocumentsInfo) httpPostDocuments(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Create the document.
-	document, err := d.CreateDocument(name, fileData)
+	document, err := d.CreateDocument(name, handler.Filename, fileData)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

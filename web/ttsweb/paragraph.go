@@ -46,8 +46,6 @@ type ParagraphInfo struct {
 
 // LoadParagraphs will load all of the paragraphs from the paragraphs directory.
 func LoadParagraphInfos(documentsDir, documentID string) ([]ParagraphInfo, error) {
-	fmt.Println("Loading paragraph infos for document " + documentID)
-
 	paragraphs := []ParagraphInfo{}
 
 	// Load the paragraphs from the paragraphs directory.
@@ -79,8 +77,6 @@ func LoadParagraphInfos(documentsDir, documentID string) ([]ParagraphInfo, error
 // LoadParagraphInfo will populate the ParagraphInfo struct with the information
 // about the paragraph. This does not include the text of the paragraph.
 func LoadParagraphInfo(documentsDir, documentID string, paragraphID string) (ParagraphInfo, error) {
-	fmt.Println("Loading paragraph info " + paragraphID + " for document " + documentID)
-
 	paragraph := ParagraphInfo{}
 	paragraph.ID = paragraphID
 
@@ -145,8 +141,6 @@ type Paragraph struct {
 // directory. The paragraph will be loaded from the index.json file
 // in the paragraph directory.
 func LoadParagraph(documentsDir, documentID string, paragraphID string) (Paragraph, error) {
-	fmt.Println("Loading paragraph " + paragraphID + " for document " + documentID)
-
 	paragraphFile := paragraphID + ".txt"
 	paragraph := Paragraph{}
 
@@ -167,15 +161,17 @@ func LoadParagraph(documentsDir, documentID string, paragraphID string) (Paragra
 
 // LoadParagraphBatch will load a batch of paragraphs by a list of paragraph IDs.
 func LoadParagraphBatch(documentsDir, documentID string, paragraphIDs []string) ([]Paragraph, error) {
-	fmt.Println("Loading paragraph batch for document " + documentID)
-
 	paragraphs := []Paragraph{}
 
 	// Loop through the paragraph IDs and load the paragraphs.
 	for _, paragraphID := range paragraphIDs {
 		paragraph, err := LoadParagraph(documentsDir, documentID, paragraphID)
 		if err != nil {
-			return nil, err
+			// Print the error and continue. It might be that the paragraph
+			// was missing from the directory. We don't want to stop the
+			// whole batch just because one paragraph is missing.
+			fmt.Println(err)
+			continue
 		}
 		paragraphs = append(paragraphs, paragraph)
 	}
