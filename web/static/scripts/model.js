@@ -26,8 +26,15 @@ export class Model {
             let request = new XMLHttpRequest();
             request.open('GET', '/documents');
             request.responseType = 'json';
-            request.send();
-            request.onload = () => {
+            request.onreadystatechange = () => {
+                if (request.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+                if (request.status !== 200) {
+                    reject();
+                    return;
+                }
+
                 this.documents = request.response.documents;
                 let e = new CustomEvent(this.DOCUMENTS_LOADED, {detail: this.documents});
                 this.listeners.forEach((listener) => {
@@ -35,8 +42,9 @@ export class Model {
                         listener.eventHandler(e);
                     }
                 });
-                resolve();
+                resolve(this.documents);
             };
+            request.send();
         });
     }
 
@@ -45,16 +53,22 @@ export class Model {
     // also update the current document.
     openDocument(documentID) {
         return new Promise((resolve, reject) => {
-            let document = new DocumentModel();
-            document.loadDocument(documentID).then(() => {
-                this.currentDocument = document;
+            let d = new DocumentModel();
+            d.loadDocument(documentID).then(() => {
+                // Remove all listeners from the current document. This will
+                // prevent duplicate events from being fired and updating the
+                // view multiple times.
+                if (this.currentDocument !== null) {
+                    this.currentDocument.removeAllEventListeners();
+                }
+                this.currentDocument = d;
                 let e = new CustomEvent(this.DOCUMENT_OPENED, {detail: this.currentDocument});
                 this.listeners.forEach((listener) => {
                     if (listener.event === this.DOCUMENT_OPENED) {
                         listener.eventHandler(e);
                     }
                 });
-                resolve();
+                resolve(d);
             });
         });
     }
@@ -64,21 +78,33 @@ export class Model {
     uploadDocument(documentName, documentFile) {
         return new Promise((resolve, reject) => {
             let formData = new FormData();
-            formData.append('documentName', this.documentName);
-            formData.append('documentFile', this.documentFile);
+            formData.append('name', documentName);
+            formData.append('file', documentFile);
 
             let request = new XMLHttpRequest();
             request.open('POST', '/documents');
-            request.send(formData);
-            request.onload = () => {
-                let e = new CustomEvent(this.DOCUMENT_UPLOADED, {detail: this.currentDocument});
+            request.responseType = 'json';
+            request.onreadystatechange = () => {
+                if (request.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+                if (request.status !== 200) {
+                    reject(request.response);
+                    return;
+                }
+
+                let newDocument = request.response;
+                this.documents.push(newDocument);
+
+                let e = new CustomEvent(this.DOCUMENT_UPLOADED, {detail: newDocument});
                 this.listeners.forEach((listener) => {
                     if (listener.event === this.DOCUMENT_UPLOADED) {
                         listener.eventHandler(e);
                     }
                 });
-                resolve();
+                resolve(newDocument);
             };
+            request.send(formData);
         });
     }
 
@@ -89,11 +115,11 @@ export class Model {
 
         // If the event has already been fired then call the event handler
         // immediately.
-        if (event === this.DOCUMENTS_LOADED && this.documents.length > 0) {
-            eventHandler(new CustomEvent(this.DOCUMENTS_LOADED, {detail: this.documents}));
-        }
         if (event === this.DOCUMENT_OPENED && this.currentDocument !== null) {
             eventHandler(new CustomEvent(this.DOCUMENT_OPENED, {detail: this.currentDocument}));
+        }
+        if (event === this.DOCUMENTS_LOADED && this.documents.length > 0) {
+            eventHandler(new CustomEvent(this.DOCUMENTS_LOADED, {detail: this.documents}));
         }
         if (event === this.DOCUMENT_UPLOADED && this.currentDocument !== null) {
             eventHandler(new CustomEvent(this.DOCUMENT_UPLOADED, {detail: this.currentDocument}));
@@ -141,8 +167,15 @@ export class DocumentModel {
             let request = new XMLHttpRequest();
             request.open('GET', '/documents/' + documentID);
             request.responseType = 'json';
-            request.send();
-            request.onload = async () => {
+            request.onreadystatechange = async () => {
+                if (request.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+                if (request.status !== 200) {
+                    reject();
+                    return;
+                }
+
                 this.id = request.response.id;
                 this.name = request.response.name;
                 this.paragraphs = request.response.paragraphs; // paragraph info
@@ -186,6 +219,7 @@ export class DocumentModel {
                     });
                 });
             };
+            request.send();
         });
     }
 
@@ -226,6 +260,13 @@ export class DocumentModel {
         this.listeners.push({event: event, eventHandler: eventHandler});
     }
 
+    // Remove all of the listeners for the document model. This is
+    // used when a new document is opened. The listeners for the
+    // previous document need to be removed.
+    removeAllEventListeners() {
+        this.listeners = [];
+    }
+
     // Load a batch of paragraphs from the server.
     loadParagraphs(documentID, startID, endID) {
         return new Promise((resolve, reject) => {
@@ -236,8 +277,15 @@ export class DocumentModel {
             request.open('GET', url);
             request.responseType = 'json';
             request.setRequestHeader('Content-Type', 'application/json');
-            request.send();
-            request.onload = () => {
+            request.onreadystatechange = () => {
+                if (request.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+                if (request.status !== 200) {
+                    reject();
+                    return;
+                }
+
                 let paragraphs = request.response;
                 for (let i = 0; i < paragraphs.length; i++) {
                     let paragraph = paragraphs[i];
@@ -261,6 +309,7 @@ export class DocumentModel {
                 }
                 resolve();
             };
+            request.send();
         });
     }
 }
@@ -289,14 +338,22 @@ export class ParagraphModel {
             let request = new XMLHttpRequest();
             request.open('GET', '/documents/' + documentID + '/paragraphs/' + paragraphID);
             request.responseType = 'json';
-            request.send();
-            request.onload = () => {
+            request.onreadystatechange = () => {
+                if (request.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+                if (request.status !== 200) {
+                    reject();
+                    return;
+                }
+
                 this.id = request.response.id;
                 this.content = request.response.content;
                 this.link = request.response.link;
                 this.audioLink = request.response.audioLink;
                 resolve();
             };
+            request.send();
         });
     }
 }

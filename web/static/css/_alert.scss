@@ -8,10 +8,6 @@ $successFGColor: #059b05;
 $errorBGColor: #ec7272;
 $errorFGColor: #b40202;
 
-body {
-    overflow-x: hidden;
-}
-
 #alert-container {
     position: absolute;
     width: 40%;
@@ -19,6 +15,7 @@ body {
     display: flex;
     flex-direction: column;    
     gap: 10px;
+    overflow-x: hidden;
 }
 
 .alert {

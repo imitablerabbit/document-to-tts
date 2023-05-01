@@ -22,23 +22,23 @@ export class SaveDocumentPositionController {
             this.document = e.detail;
 
             // Subscribe to the document so we know when the paragraphs have changed.
-            this.model.currentDocument.addEventListener('paragraphChanged', (e) => {
+            this.document.addEventListener('paragraphChanged', (e) => {
                 this.save(e.detail);
             });
 
             // Subscribe to pause events so we can save the current position of the user
             // in the document.
             this.audioController.audioElement.addEventListener('pause', (e) => {
-                this.save(this.model.currentDocument.currentParagraphIndex);
+                this.save(this.document.currentParagraphIndex);
             });
 
-            this.model.currentDocument.addEventListener('documentLoaded', (e) => {
+            this.document.addEventListener('documentLoaded', (e) => {
 
                 // Load the current position of the user in the document from the database.
                 let position = this.load();
                 if (position && position.documentID === this.document.id) {
                     // Set the current paragraph index and the current time in the audio file.
-                    this.model.currentDocument.setCurrentParagraphIndex(position.paragraphIndex);
+                    this.document.setCurrentParagraphIndex(position.paragraphIndex);
                     this.audioController.audioElement.currentTime = position.currentTime;
                 }
             });

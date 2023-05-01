@@ -23,7 +23,7 @@ export class MainReaderView {
 
             // Subscribe to paragraph loading events. When a paragraph has been loaded
             // we will update the view.
-            this.model.currentDocument.addEventListener('paragraphLoaded', (e) => {
+            this.document.addEventListener('paragraphLoaded', (e) => {
                 
                 // Only update the view if the paragraph that was loaded is one of the
                 // 3 paragraphs that we are displaying.
@@ -44,7 +44,7 @@ export class MainReaderView {
             });
 
             // Subscribe to the document so we know when the paragraphs have changed.
-            this.model.currentDocument.addEventListener('paragraphChanged', (e) => {
+            this.document.addEventListener('paragraphChanged', (e) => {
                 console.log("MainReaderView: paragraphChanged event received", e);
                 this.updateView();
             });

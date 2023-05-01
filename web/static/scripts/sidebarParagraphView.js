@@ -47,10 +47,17 @@ export class SidebarParagraphView {
 
                 if (this.currentParagraphElement) {
                     this.currentParagraphElement.classList.add('current-paragraph');
-                    this.currentParagraphElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                    });
+                    // Check if we are running on a device with a small screen.
+                    // If we are then we will ignore the scrollIntoView call.
+                    // This is because the scrollIntoView call will cause the
+                    // sidebar to scroll off the screen. 1500 is the width that
+                    // the sidebar will be moved under the main content.
+                    if (window.innerWidth > 1500) {
+                        this.currentParagraphElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                        });
+                    }
                 }
                 if (previousParagraphElement) {
                     previousParagraphElement.classList.remove('current-paragraph');
