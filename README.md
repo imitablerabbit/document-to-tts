@@ -1,11 +1,21 @@
 # document-to-tts
 
-This is a simple script that converts a document file to a series of wav files using Coqui TTS. The `split-document.sh` script can be used to split a document into paragraphs and sentences. The `split-txt-to-tts.py` script can then be used to convert a document into a series of wav files.
-You can grep over the folder of split text files to find the sentence you want to listen to as the wav filenames are the same.
+Convert a document to text-to-speech audio files. A web console is provided to upload documents and listen to the audio files.
 
 ## Usage
 
 Split the text into paragraphs and sentences. The script will then convert each sentence into an audio file.
+
+### Web console
+
+```bash
+cd web
+make
+mkdir documents
+make start
+```
+
+![Web console](./images/homepage.png)
 
 ### Split text
 
