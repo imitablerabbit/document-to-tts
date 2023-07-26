@@ -2,6 +2,7 @@
 audio-split
 txt-split
 *.docx
+*.pdf
 
 # byproducts of the web app.
 web/documents/**
