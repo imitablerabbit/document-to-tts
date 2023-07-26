@@ -174,11 +174,22 @@ form {
     grid-template-columns: 1fr 2fr;
     grid-template-rows: 1fr;
     grid-gap: 1em;
-    margin-bottom: 1em;
+    margin: 0px;
 
-    // Add button to the final column.
-    button {
+    // Add a label to the first column.
+    label {
+        grid-column: 1;
+        text-align: right;
+    }
+
+    // Add an input to the second column.
+    input, button, select {
         grid-column: 2;
+        height: 25px;
+    }
+
+    button {
+        width: 100px;
     }
 }
 

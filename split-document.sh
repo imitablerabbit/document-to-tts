@@ -196,7 +196,7 @@ mv ${tmp_name}.tmp ${tmp_name}
 # Split the document into separate files based on new lines.
 start_action "Splitting ${tmp_name} into separate files..."
 mkdir -p ${output_dir}
-awk 'NF {print $0 > "'${output_dir}'/" ++i ".txt"}' ${tmp_name}
+awk 'NF {print $0 > "'${output_dir}'/" i++ ".txt"}' ${tmp_name}
 end_action $?
 
 # Remove the temporary files.

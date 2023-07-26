@@ -22,38 +22,38 @@ export class AudioController {
         this.model.addEventListener('documentOpened', (e) => {
             this.document = e.detail;
             this.updateView();
-
-            this.audioElement.addEventListener('play', (e) => {
-                console.log('play');
-                this.playing = true;
-            });
-
-            this.audioElement.addEventListener('pause', (e) => {
-                // Determine if the audio has been paused or if it has
-                // finished playing. If the audio has finished playing,
-                // don't set the playing flag to false.
-                if (this.audioElement.currentTime === this.audioElement.duration) {
-                    return
-                }
-                console.log('pause');
-                this.playing = false;
-            });
-
-            this.audioElement.addEventListener('ended', (e) => {
-                this.document.nextParagraph();
-            });
-
-            // Check if there was an error loading the audio file. If
-            // there was an error, try to load the next paragraph.
-            this.audioElement.addEventListener('error', (e) => {
-                alert.error("Missing audio src: " + this.audioElement.src + ". Skipping to next paragraph.");
-                this.document.nextParagraph();
-            });
-
+            
             // Subscribe to the document so we know when the paragraphs have changed.
             this.document.addEventListener('paragraphChanged', (e) => {
                 this.updateView();
             });
+        });
+
+        this.audioElement.addEventListener('play', (e) => {
+            console.log('play');
+            this.playing = true;
+        });
+
+        this.audioElement.addEventListener('pause', (e) => {
+            // Determine if the audio has been paused or if it has
+            // finished playing. If the audio has finished playing,
+            // don't set the playing flag to false.
+            if (this.audioElement.currentTime === this.audioElement.duration) {
+                return
+            }
+            console.log('pause');
+            this.playing = false;
+        });
+
+        this.audioElement.addEventListener('ended', (e) => {
+            this.document.nextParagraph();
+        });
+
+        // Check if there was an error loading the audio file. If
+        // there was an error, try to load the next paragraph.
+        this.audioElement.addEventListener('error', (e) => {
+            alert.error("Missing audio src: " + this.audioElement.src + ". Skipping to next paragraph.");
+            this.document.nextParagraph();
         });
     }
 

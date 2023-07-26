@@ -13,9 +13,8 @@ export class SaveDocumentPositionController {
         this.model = model;
         this.audioController = audioController;
 
+        // Document that has been opened by the user.
         this.document = model.currentDocument;
-
-        this.saveData = null;
 
         // Subscribe to the document model to be notified when the document has been loaded.
         this.model.addEventListener('documentOpened', (e) => {
@@ -23,7 +22,8 @@ export class SaveDocumentPositionController {
 
             // Subscribe to the document so we know when the paragraphs have changed.
             this.document.addEventListener('paragraphChanged', (e) => {
-                this.save(e.detail);
+                let index = e.detail;
+                this.save(index);
             });
 
             // Subscribe to pause events so we can save the current position of the user
@@ -32,30 +32,18 @@ export class SaveDocumentPositionController {
                 this.save(this.document.currentParagraphIndex);
             });
 
+            // When a new document is loaded, we need to load the current position of the
+            // user in the document from the clients browser.
             this.document.addEventListener('documentLoaded', (e) => {
-
-                // Load the current position of the user in the document from the database.
-                let position = this.load();
-                if (position && position.documentID === this.document.id) {
-                    // Set the current paragraph index and the current time in the audio file.
-                    this.document.setCurrentParagraphIndex(position.paragraphIndex);
-                    this.audioController.audioElement.currentTime = position.currentTime;
-                }
+                this.load();
             });
         });
     }
     
-    // Save the current position of the user in the book to the clients browser.
     // This will save the current paragraph index and the current time in the
     // audio file.
     save(index) {
-        if (!this.document) {
-            return;
-        }
-        if (!this.document.paragraphs) {
-            return;
-        }
-        if (this.document.paragraphs.length === 0) {
+        if (!this.document || !this.document.paragraphs || this.document.paragraphs.length === 0) {
             return;
         }
 
@@ -66,36 +54,24 @@ export class SaveDocumentPositionController {
         let saveData = {
             documentName: this.document.name,
             documentID: this.document.id,
-            paragraphIndex: index,
-            currentTime: currentTime
+            paragraphIndex: index
         };
-        localStorage.setItem('saveData', JSON.stringify(saveData));
+        localStorage.setItem(this.document.id, JSON.stringify(saveData));
     }
 
     // Load the current position of the user in the book from the clients browser.
     // This will load the current paragraph index and the current time in the
     // audio file.
     load() {
-        let saveData = localStorage.getItem('saveData');
-        if (!saveData) {
-            return null;
+        let saveData = localStorage.getItem(this.document.id);
+        if (saveData) {
+            saveData = JSON.parse(saveData);
+            if (saveData.documentID === this.document.id) {
+                let index = saveData.paragraphIndex;
+                this.document.setCurrentParagraphIndex(index);
+                return index;
+            }
         }
-        this.saveData = JSON.parse(saveData);
-        return this.saveData;
-    }
-
-    // Clear the saved position of the user in the book from the clients browser.
-    clear() {
-        localStorage.removeItem('saveData');
-    }
-
-    // Loads the document that the user was last reading.
-    loadLastDocument() {
-        let saveData = localStorage.getItem('saveData');
-        if (!saveData) {
-            return null;
-        }
-        saveData = JSON.parse(saveData);
-        this.model.openDocument(saveData.documentID);
+        return null;
     }
 }

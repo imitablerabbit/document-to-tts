@@ -188,10 +188,11 @@ export class DocumentModel {
                 let batchPromises = [];
                 let batchSize = 100;
                 let startID = 0;
-                let endID = batchSize;
+                let endID = Math.min(batchSize, this.paragraphs.length-1);
                 
                 // Loop over the paragraphs in batches of 100 and load then with
-                // the start and end IDs.
+                // the start and end IDs. The requests to the server will be inclusive
+                // of the start and end IDs.
                 while (startID < this.paragraphs.length-1) {
                     batchPromises.push(this.loadParagraphs(documentID, startID, endID));
                     startID = endID;

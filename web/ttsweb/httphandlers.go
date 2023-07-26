@@ -21,7 +21,7 @@ import (
 //   - Returns the documents that have been uploaded by the user.
 //     Each document will be returned as a JSON object and will contain a link
 //     to the document for more specific information. The data returned will
-//     be a subset of the data returned by the /documents/fetch/{id} request.
+//     be a subset of the data returned by the /documents/{id} request.
 //
 // - GET /documents/{id}
 //   - Returns the document info with the specified ID.
